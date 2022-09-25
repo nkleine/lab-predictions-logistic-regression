@@ -16,24 +16,16 @@ SELECT * FROM category;
 -- interesting: name of category
 -- category has to be joined over film_category
 
-SELECT f.title, f.rental_duration, f.rental_rate, f.length, f.rating, c.name AS 'category', r.rental_date
-FROM film f
-INNER JOIN inventory i ON f.film_id = i.film_id
-INNER JOIN rental r ON i.inventory_id = r.inventory_id
-INNER JOIN film_category fc ON f.film_id = fc.film_id
-INNER JOIN category c ON fc.category_id = c.category_id;
+-- query: 
 
--- Task 2: Create a query to get the list of films and a boolean indicating if it was rented last month (May 2005). 
--- This would be our target variable.
-
-SELECT f.title, f.rental_rate, f.length, f.rating, f.rental_duration, (
+SELECT f.title, f.rental_duration, f.rental_rate, f.length, f.rating, c.name AS ‘category’, r.rental_date,
+(
 SELECT
-CASE WHEN rental_date BETWEEN '2005-05-00 00:00:00' AND '2005-06-00 00:00:00' then 1
-else 0
-end as rented_may) as rentals_may
-from sakila.rental r
-JOIN inventory i USING (inventory_id)
-JOIN film f USING (film_id)
+CASE WHEN r.rental_date BETWEEN '2005-05-00 00:00:00' AND '2005-06-00 00:00:00' then 1
+else 0 end as rented_may) as rentals_may FROM film f 
+LEFT JOIN inventory i ON f.film_id = i.film_id
+LEFT JOIN film_category f_c ON f_c.film_id = f.film_id
+LEFT JOIN category c ON f_c.category_id = c.category_id
+LEFT JOIN rental r ON r.inventory_id = i.inventory_id
+GROUP BY f.title
 ORDER BY f.title;
-
--- build the boolean in python!
